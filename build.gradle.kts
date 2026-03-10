@@ -3,7 +3,7 @@ plugins {
     jacoco
     id("org.springframework.boot") version "4.0.2"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.sonarqube") version "7.1.0.6387"
+    id("org.sonarqube") version "7.2.3.7755"
 }
 
 val seleniumJavaVersion = "4.14.1"
@@ -87,7 +87,7 @@ tasks.jacocoTestReport {
 
 sonar {
     properties {
-        property("sonar.projectKey", "B-Felesia-Junelus-2406354152_Modul-1-Coding-Standards")
+        property("sonar.projectKey", "B-Felesia-Junelus-2406354152_Modul-4-TDD-and-Refactoring")
         property("sonar.organization", "b-felesia-junelus-2406354152")
     }
 }
