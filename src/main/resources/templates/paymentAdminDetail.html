@@ -17,7 +17,6 @@
             <p><strong>Payment ID:</strong> <span th:text="${payment.id}"></span></p>
             <p><strong>Method:</strong> <span th:text="${payment.method}"></span></p>
             <p><strong>Status:</strong> <span th:text="${payment.status}"></span></p>
-            <p><strong>Order ID:</strong> <span th:text="${payment.order.id}"></span></p>
 
             <form th:action="@{/payment/admin/set-status/{paymentId}(paymentId=${payment.id})}" method="post"
                 class="mt-4 form-inline">

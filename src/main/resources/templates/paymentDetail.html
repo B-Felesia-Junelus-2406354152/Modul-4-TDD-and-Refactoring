@@ -17,8 +17,6 @@
             <p><strong>Payment ID:</strong> <span th:text="${payment.id}"></span></p>
             <p><strong>Method:</strong> <span th:text="${payment.method}"></span></p>
             <p><strong>Status:</strong> <span th:text="${payment.status}"></span></p>
-            <!-- Adding order reference explicitly if applicable -->
-            <p><strong>Order ID:</strong> <span th:text="${payment.order.id}"></span></p>
         </div>
 
         <div th:if="${payment == null}">
