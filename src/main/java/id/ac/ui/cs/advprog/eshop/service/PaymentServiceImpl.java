@@ -48,7 +48,13 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         Payment payment = new Payment(paymentId, method, paymentData, status);
-        return paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
+        
+        // As requested by business logic, we must sync the order status immediately 
+        // if the payment status is SUCCESS or REJECTED
+        syncOrderStatus(savedPayment, status);
+        
+        return savedPayment;
     }
 
     @Override
@@ -69,9 +75,9 @@ public class PaymentServiceImpl implements PaymentService {
         Order order = orderService.findById(orderId);
         if (order != null) {
             if (PaymentStatus.SUCCESS.getValue().equals(paymentStatus)) {
-                order.setStatus("SUCCESS");
+                orderService.updateStatus(order.getId(), "SUCCESS");
             } else if (PaymentStatus.REJECTED.getValue().equals(paymentStatus)) {
-                order.setStatus("FAILED");
+                orderService.updateStatus(order.getId(), "FAILED");
             }
         }
     }

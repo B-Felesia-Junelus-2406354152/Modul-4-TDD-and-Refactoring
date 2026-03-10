@@ -1,8 +1,10 @@
 package id.ac.ui.cs.advprog.eshop.controller;
 
 import id.ac.ui.cs.advprog.eshop.model.Order;
+import id.ac.ui.cs.advprog.eshop.model.Payment;
 import id.ac.ui.cs.advprog.eshop.model.Product;
 import id.ac.ui.cs.advprog.eshop.service.OrderService;
+import id.ac.ui.cs.advprog.eshop.service.PaymentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -28,6 +31,9 @@ class OrderControllerTest {
 
     @Mock
     private OrderService orderService;
+
+    @Mock
+    private PaymentService paymentService;
 
     @InjectMocks
     private OrderController orderController;
@@ -111,12 +117,19 @@ class OrderControllerTest {
         dummyProduct.setProductName("dummy_product");
         dummyProduct.setProductQuantity(1);
         products.add(dummyProduct);
-        when(orderService.updateStatus("1", "SUCCESS")).thenReturn(new Order("1", products, 1L, "Author"));
+        Order order = new Order("1", products, 1L, "Author");
+        
+        when(orderService.findById("1")).thenReturn(order);
+        Payment dummyPayment = new Payment("pay-123", "VOUCHER_CODE", new HashMap<>());
+        when(paymentService.addPayment(any(Order.class), anyString(), anyMap())).thenReturn(dummyPayment);
 
-        mockMvc.perform(post("/order/pay/1"))
+        mockMvc.perform(post("/order/pay/1")
+                .param("paymentMethod", "VOUCHER_CODE")
+                .param("voucherCode", "ESHOP1234ABC5678"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/order/history"));
+                .andExpect(redirectedUrl("/payment/detail/pay-123"));
                 
-        verify(orderService, times(1)).updateStatus("1", "SUCCESS");
+        verify(orderService, times(1)).findById("1");
+        verify(paymentService, times(1)).addPayment(eq(order), eq("VOUCHER_CODE"), anyMap());
     }
 }

@@ -11,31 +11,46 @@
 <body>
 
     <div class="container mt-5">
-        <h3>Payment Admin List</h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Payment Admin Dashboard</h2>
+        </div>
 
-        <table class="table">
-            <thead class="thead-light">
-                <tr>
-                    <th>Payment ID</th>
-                    <th>Method</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="payment : ${payments}">
-                    <td th:text="${payment.id}"></td>
-                    <td th:text="${payment.method}"></td>
-                    <td th:text="${payment.status}"></td>
-                    <td>
-                        <a th:href="@{/payment/admin/detail/{paymentId}(paymentId=${payment.id})}"
-                            class="btn btn-info btn-sm">View Details</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div th:if="${payments.isEmpty()}" class="alert alert-info" role="alert">
+            No payments have been recorded yet.
+        </div>
 
-        <a th:href="@{/}" class="btn btn-secondary mt-3">Back to Home</a>
+        <div th:if="${!payments.isEmpty()}" class="table-responsive">
+            <table class="table table-hover table-bordered text-center">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="payment : ${payments}">
+                        <td class="align-middle p-3 font-weight-bold"><span th:text="${payment.id}"></span></td>
+                        <td class="align-middle p-3">
+                            <span th:if="${payment.status == 'SUCCESS'}" class="badge badge-success p-2">SUCCESS</span>
+                            <span th:if="${payment.status == 'REJECTED'}" class="badge badge-danger p-2">REJECTED</span>
+                            <span th:if="${payment.status == 'PENDING'}" class="badge badge-warning p-2">PENDING</span>
+                            <span
+                                th:if="${payment.status != 'SUCCESS' and payment.status != 'REJECTED' and payment.status != 'PENDING'}"
+                                class="badge badge-secondary p-2" th:text="${payment.status}"></span>
+                        </td>
+                        <td class="align-middle p-3">
+                            <a th:href="@{/payment/admin/detail/{paymentId}(paymentId=${payment.id})}"
+                                class="btn btn-outline-info btn-sm">Review Details</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            <a th:href="@{/}" class="btn btn-outline-dark">Back to Home</a>
+        </div>
     </div>
 
 </body>

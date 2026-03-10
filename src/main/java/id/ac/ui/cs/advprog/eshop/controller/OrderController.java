@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.eshop.controller;
 import id.ac.ui.cs.advprog.eshop.model.Order;
+import id.ac.ui.cs.advprog.eshop.model.Payment;
 import id.ac.ui.cs.advprog.eshop.model.Product;
 import id.ac.ui.cs.advprog.eshop.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import id.ac.ui.cs.advprog.eshop.service.PaymentService;
 
 @Controller
 @RequestMapping("/order")
@@ -45,6 +48,9 @@ public class OrderController {
         return "orderList";
     }
 
+    @Autowired
+    private PaymentService paymentService;
+
     @GetMapping("/pay/{orderId}")
     public String payOrderPage(@PathVariable("orderId") String orderId, Model model) {
         Order order = service.findById(orderId);
@@ -53,8 +59,19 @@ public class OrderController {
     }
     
     @PostMapping("/pay/{orderId}")
-    public String payOrderPost(@PathVariable("orderId") String orderId, Model model) {
-        service.updateStatus(orderId, "SUCCESS");
-        return "redirect:/order/history"; 
+    public String payOrderPost(@PathVariable("orderId") String orderId, 
+                               @RequestParam Map<String, String> allParams, 
+                               Model model) {
+        Order order = service.findById(orderId);
+        String paymentMethod = allParams.get("paymentMethod");
+        
+        // Remove non-payment-data parameters
+        allParams.remove("paymentMethod");
+        allParams.remove("_csrf");
+        
+        // Create the payment
+        Payment payment = paymentService.addPayment(order, paymentMethod, allParams);
+        
+        return "redirect:/payment/detail/" + payment.getId(); 
     }
 }

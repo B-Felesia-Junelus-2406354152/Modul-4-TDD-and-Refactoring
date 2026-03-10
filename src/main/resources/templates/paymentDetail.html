@@ -16,7 +16,24 @@
         <div th:if="${payment != null}">
             <p><strong>Payment ID:</strong> <span th:text="${payment.id}"></span></p>
             <p><strong>Method:</strong> <span th:text="${payment.method}"></span></p>
-            <p><strong>Status:</strong> <span th:text="${payment.status}"></span></p>
+            <p><strong>Status:</strong>
+                <span th:if="${payment.status == 'SUCCESS'}" class="badge badge-success"
+                    th:text="${payment.status}"></span>
+                <span th:if="${payment.status == 'REJECTED'}" class="badge badge-danger"
+                    th:text="${payment.status}"></span>
+                <span th:if="${payment.status == 'PENDING'}" class="badge badge-warning"
+                    th:text="${payment.status}"></span>
+            </p>
+
+            <h5 class="mt-4 border-bottom pb-2">Your Payment Details</h5>
+            <table class="table table-sm table-bordered mt-2">
+                <tbody>
+                    <tr th:each="entry : ${payment.paymentData}">
+                        <th class="w-25 bg-light" th:text="${entry.key}"></th>
+                        <td th:text="${entry.value}"></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <div th:if="${payment == null}">
