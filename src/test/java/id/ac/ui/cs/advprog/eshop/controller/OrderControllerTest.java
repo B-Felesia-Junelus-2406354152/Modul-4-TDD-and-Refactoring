@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -120,7 +121,9 @@ class OrderControllerTest {
         Order order = new Order("1", products, 1L, "Author");
         
         when(orderService.findById("1")).thenReturn(order);
-        Payment dummyPayment = new Payment("pay-123", "VOUCHER_CODE", new HashMap<>());
+        Map<String, String> paymentData = new HashMap<>();
+        paymentData.put("session", "123");
+        Payment dummyPayment = new Payment("pay-123", "VOUCHER_CODE", paymentData);
         when(paymentService.addPayment(any(Order.class), anyString(), anyMap())).thenReturn(dummyPayment);
 
         mockMvc.perform(post("/order/pay/1")

@@ -75,10 +75,10 @@ class OrderFunctionalTest {
 
         // Wait for redirect to order list page
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.titleIs("Order List"));
+        wait.until(ExpectedConditions.titleIs("Customer Order List"));
 
         // Verify it shows an order list page
         String pageSource = driver.getPageSource();
-        assertTrue(pageSource.contains("Order List"));
+        assertTrue(pageSource.contains("Customer Order List"));
     }
 }
