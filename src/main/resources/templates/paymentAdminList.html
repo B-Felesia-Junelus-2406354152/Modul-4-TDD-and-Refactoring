@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Admin List</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Payment Admin Dashboard</h2>
+        </div>
+
+        <div th:if="${payments.isEmpty()}" class="alert alert-info" role="alert">
+            No payments have been recorded yet.
+        </div>
+
+        <div th:if="${!payments.isEmpty()}" class="table-responsive">
+            <table class="table table-hover table-bordered text-center">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="payment : ${payments}">
+                        <td class="align-middle p-3 font-weight-bold"><span th:text="${payment.id}"></span></td>
+                        <td class="align-middle p-3">
+                            <span th:if="${payment.status == 'SUCCESS'}" class="badge badge-success p-2">SUCCESS</span>
+                            <span th:if="${payment.status == 'REJECTED'}" class="badge badge-danger p-2">REJECTED</span>
+                            <span th:if="${payment.status == 'PENDING'}" class="badge badge-warning p-2">PENDING</span>
+                            <span
+                                th:if="${payment.status != 'SUCCESS' and payment.status != 'REJECTED' and payment.status != 'PENDING'}"
+                                class="badge badge-secondary p-2" th:text="${payment.status}"></span>
+                        </td>
+                        <td class="align-middle p-3">
+                            <a th:href="@{/payment/admin/detail/{paymentId}(paymentId=${payment.id})}"
+                                class="btn btn-outline-info btn-sm">Review Details</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            <a th:href="@{/}" class="btn btn-outline-dark">Back to Home</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

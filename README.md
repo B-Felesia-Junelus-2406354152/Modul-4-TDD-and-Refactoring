@@ -6,49 +6,35 @@ Link deployment : https://past-atalanta-b-felesia-junelus-2406354152-c09ae512.ko
 
 ---
 
-## Modul 1 - Coding Standards
+## Modul 4 - TDD and Refactoring
 
-### Refleksi 1
+### Refleksi 1: Pemahaman Test-Driven Development (TDD) berdasarkan Percival (2017)
 
-Selama mengerjakan fitur create product dan delete product, saya mencoba menerapkan beberapa prinsip clean code yang sudah dipelajari di modul ini:
+Berdasarkan implementasi Test-Driven Development (TDD) yang telah saya lakukan dengan alur RED-GREEN-REFACTOR, saya mengevaluasi efektivitasnya berdasarkan panduan obyektif *Evaluating Your Testing Objectives* dari Percival (2017) sebagai berikut:
 
-1. **Meaningful Names** — Saya berusaha memberi nama variabel dan method yang jelas, misalnya `createProductPage` untuk menampilkan halaman create dan `deleteProduct` untuk menghapus produk. Dengan begitu, orang lain yang membaca kode bisa langsung paham fungsinya tanpa harus baca komentar.
+**1. Apakah Alur TDD Ini Bermanfaat?**
+Secara keseluruhan, alur TDD **sangat bermanfaat** dan mempermudah pengembangan aplikasi karena memenuhi tujuan pengujian:
+*   **Mencegah Bug Tembus ke Produksi (Correctness):** Menulis tes sebelum kode (pada fase *RED*) "memaksa" saya memikirkan spesifikasi ekspekstasi (*happy path*) serta kemungkinan kondisi gagal (*edge case* / *unhappy path*) sejak awal (contoh: format `voucherCode` yang salah atau `bankName` yang kosong). Hal ini melatih pemahaman saya mengenai *business rules* sistem sehingga meminimalisir peluang masuknya *bug*.
+*   **Mendokumentasikan Perilaku Sistem (Documentation):** *Unit tests* yang saya buat secara praktis bertindak sebagai "dokumentasi hidup" (*living documentation*). Pemrogram lain dapat membaca `PaymentServiceImplTest` untuk mengerti logika validasi `BANK_TRANSFER` atau `VOUCHER_CODE` tanpa perlu menerka-nerka dari kode sumber utamanya secara langsung.
+*   **Meningkatkan Rasa Aman saat Refactoring (Maintainability):** Siklus TDD memberikan saya jaring pengaman (*safety net*). Sesuai janji tahapan *REFACTOR*, saya tidak ragu memperbaiki maupun merombak internal struktur kode lama (misal: menggantikan `order.setStatus` dengan `orderService.updateStatus`) dengan sangat berani (*fearlessly*) karena saya tahu persis tes-tes saya di siklus *GREEN* sebelumnya akan men-validasi fungsionalitasnya seketika.
 
-2. **Single Responsibility** — Saya memisahkan controller, service, dan repository ke class masing-masing supaya setiap class hanya punya satu tanggung jawab. Misalnya `HomeController` saya pisahkan dari `ProductController` karena walaupun sama-sama controller, tugasnya berbeda.
-
-3. **Penggunaan Interface** — Saya membuat interface `ProductService` yang diimplementasikan oleh `ProductServiceImpl`. Awalnya saya bingung kenapa perlu buat interface kalau implementasinya cuma satu, tapi setelah dipelajari ternyata ini berguna untuk mempermudah testing karena bisa di-mock.
-
-4. **Lombok** — Saya pakai `@Getter` dan `@Setter` di model `Product` supaya tidak perlu menulis getter setter manual yang membuat kode jadi panjang.
-
-Selain itu, untuk secure coding saya sudah menggunakan method `POST` untuk operasi create dan delete (bukan `GET`), dan menggunakan `UUID` untuk generate ID produk supaya tidak mudah ditebak.
-
-Namun, setelah saya review kembali, ada beberapa hal yang menurut saya bisa diperbaiki:
-
-- Saya belum menambahkan **validasi input**, jadi user bisa saja mengirim nama produk kosong atau quantity negatif dan tetap berhasil tersimpan.
-- Method `findById` mengembalikan `null` kalau produk tidak ditemukan. Ini bisa menyebabkan `NullPointerException` di controller. Sebaiknya bisa menggunakan `Optional` atau throw exception.
-- Ada **inkonsistensi pada redirect** — di `createProductPost` saya pakai `redirect:list` (relatif) tapi di `deleteProduct` saya pakai `redirect:/product/list` (absolut). Seharusnya konsisten.
-- Parameter `Model model` di method `createProductPost` tidak digunakan, seharusnya dihapus saja supaya lebih bersih.
-
-### Refleksi 2
-
-1. Setelah menulis unit test, jujur saya merasa lebih percaya diri dengan kode yang sudah saya buat karena kalau ada yang error, test-nya langsung ketahuan. Menurut saya, tidak ada aturan pasti berapa jumlah unit test yang harus dibuat dalam satu class. Yang penting, setiap method yang punya logic penting sudah ada test-nya, baik untuk kasus normal maupun kasus-kasus aneh (edge case) seperti input null atau data yang tidak ditemukan. Saya juga belajar tentang code coverage, yaitu metrik yang mengukur seberapa banyak baris kode kita yang dijalankan oleh test. Kalau code coverage 100%, apakah berarti kode kita pasti bebas bug? Menurut saya **tidak**. Coverage 100% cuma berarti semua baris kode sudah pernah dieksekusi, tapi belum tentu semua kemungkinan input atau skenario sudah diuji. Misalnya, kode saya mungkin sudah 100% coverage, tapi belum tentu saya sudah menguji kasus quantity negatif atau nama produk yang sangat panjang.
-
-2. Kalau saya diminta membuat functional test suite baru yang mirip dengan `CreateProductFunctionalTest` (misalnya untuk memverifikasi jumlah item di product list), dan saya langsung copy-paste setup yang sama (seperti `@LocalServerPort`, `baseUrl`, `@BeforeEach`, dll) ke class baru, menurut saya itu akan mengurangi kualitas kode karena terjadi **duplikasi kode (code duplication)**. Ini melanggar prinsip **DRY (Don't Repeat Yourself)** — kalau nanti ada perubahan pada setup (misalnya URL base-nya berubah), saya harus mengubahnya di banyak tempat dan rawan lupa.
-
-   Untuk memperbaikinya, menurut saya bisa membuat **base class** seperti `BaseFunctionalTest` yang berisi setup procedures dan instance variables yang sama (`serverPort`, `testBaseUrl`, `baseUrl`, `@BeforeEach`). Kemudian, setiap functional test class tinggal meng-extend base class tersebut. Dengan begitu, kode setup hanya ditulis sekali dan setiap test class langsung bisa pakai tanpa duplikasi.
+**2. Hal yang Perlu Diperbaiki ke Depannya:**
+Meskipun pengujian ini sangat berguna bagi saya, kelemahan TDD yang terkadang saya alami adalah terjebak pada **"mendesain tes yang terlalu bergantung pada rincian implementasi"** (*tightly coupled*). Terkadang saya terlalu ketat memverifikasi hal internal (seperti spesifik metode *repository* dipanggil persis berapa kali) hanya demi metrik *coverage* 100%. Di waktu berikutnya, saya harus:
+*   Berfokus menguji **perilaku** antarmuka (Input $\rightarrow$ Output) program, alih-alih mengecek cara khusus (*How*) kelas tersebut menunaikan tugas mandirinya secara berlebihan.
+*   Meningkatkan bobot komposisi *Functional Tests*, agar memiliki jaminan lebih meyakinkan bahwa aplikasi benar-benar bekerja memukau dari kacamata peramban pengguna akhir (bukan hanya tes integrasi kelas).
 
 ---
 
-## Module 2 - Continuous Integration & Continuous Deployment (CI/CD)
+### Refleksi 2: Pemahaman Prinsip F.I.R.S.T pada Kode Pengujian Saya
 
-### Reflection
+Konsep F.I.R.S.T adalah landasan utama dalam mengukur seberapa efisien kode tes (khususnya *unit test*) yang ditulis. Bedasarkan *unit test* dan *functional test* yang telah saya terapkan pada exercise ini, berikut evaluasinya:
 
-**1. List the code quality issue(s) that you fixed during the exercise and explain your strategy on fixing them.**
-Selama ngerjain *exercise* ini, aku benerin beberapa masalah kualitas kode dan keamanan yang dikasih tahu sama *tools*-nya:
-* **Masalah Token-Permissions (OSSF Scorecard):** Scorecard ngasih peringatan kalau file GitHub Actions aku (`ci.yml` dan `build.yml`) belum diatur izinnya (*permissions*). Ini lumayan bahaya karena tokennya bisa punya akses terlalu bebas. Cara aku benerinnya cukup dengan nambahin baris `permissions: read-all` di bagian atas file, jadi tokennya cuma dikasih izin buat baca doang (*read-only*) biar lebih aman.
-* **Tes yang kosong / Missing assertions (SonarCloud):** SonarCloud ngedeteksi ada *code smell* di file `EshopApplicationTests.java`. Ternyata method `contextLoads()` dan `testMainMethod()` punyaku isinya masih kosong dan nggak ngecek apa-apa (*nggak ada assertion*). Aku benerin ini dengan cara nambahin `assertTrue(true)` buat ngasih tahu kalau aplikasinya beneran berhasil dimuat, dan nambahin `assertDoesNotThrow()` buat mastiin method `main`-nya bisa jalan tanpa ada *error* atau *crash*.
+*   **Fast (Cepat): Terpenuhi.** Hampir semua *unit test* saya untuk `Controller` dan `Service` menggunakan anotasi `@ExtendWith(MockitoExtension.class)` serta Mockito (`@Mock`, `@InjectMocks`). Akibatnya, tes dapat diisolasi dan menipu (*stub*) dependensi ke pangkalan data atau objek berat (*Repository*) lainnya. Ini menyebabkan pengujian saya selesai dieksekusi kurang dari sekian milidetik, memberikan alur balasan peringatan (*feedback loop*) yang instan bagi produktivitas saya.
+*   **Independent (Independen/Terisolasi): Sebagian Terpenuhi.** Secara garis besar tes saya sudah terisolasi karena dibantu oleh mekanisme `@BeforeEach` yang senantiasa "mereset ulang" instansi kelas (`Payment`, `Order`) menjadi bersih dari nol sebelum sebuah tes baru mengambil giliran eksekusi. **Namun**, dalam ranah fungsional tes (*Selenium WebDriver*), terkadang data yang ditulis dan belum dihapus permanen oleh satu tes fungsional bisa membocorkan pengaruh "*state*" ke tes lain apabila urutannya dimainkan secara asinkron/acak.
+*   **Repeatable (Dapat Diulangi): Terpenuhi.** Saya telah merancang tes supaya berjalan konsisten di lingkungan mana saja. Bahkan Github Actions _Continuous Integration_ (CI) mampu berulang kali memvalidasi pengujian ini dengan sukses di Linux *runner*-nya tanpa masalah sistem operasi atau deviasi lingkungan (berkat konfigurasi Gradle lokal yang rapi).
+*   **Self-Validating (Memvalidasi Dirinya Sendiri): Terpenuhi.** Tidak ada instrumen *Print/System.out* manual untuk memvalidasi benar salahnya hasil program saya. Tiap tes menggunakan metode pernyataan (*assertions*) keras (`assertEquals`, `assertTrue`, `assertThrows`, `verify`). Segala macam keputusan LULUS (*passed*) atau GAGAL (*failed*) diputuskan secara otonomis dengan rekapitulasi laporannya berwarna Hijau/Merah (*Boolean logic*).
+*   **Timely (Tepat Waktu/Singkron Alur): Perlu Diperbaiki.** Saya meniatkan diri untuk menulis tes mendahului fungsi yang mengandalkannya (_Test-First_), akan tetapi di dunia nyata terkadang ritme godaan saya tetap condong menyempurnakan implementasi dasarnya lebih dahulu lantaran belum tahu persis struktur akhirnya. 
 
-**2. Look at your CI/CD workflows (GitHub Actions). Do you think the current implementation has met the definition of Continuous Integration and Continuous Deployment? Explain the reasons (minimum 3 sentences)!**
-Iya, menurut aku implementasi yang aku buat sekarang udah memenuhi definisi dari *Continuous Integration* (CI) dan *Continuous Deployment* (CD). 
-Alasannya, buat bagian CI, tiap kali aku nge-*push* kode atau bikin *Pull Request*, GitHub Actions bakal otomatis ngejalanin *unit test* (`ci.yml`), ngecek keamanan (*supply-chain*) pakai Scorecard, dan nyari *bug* atau *code smell* pakai SonarCloud (`build.yml`). Jadi kodenya dipastiin aman dan jalan dulu sebelum digabungin. 
-Terus buat bagian CD-nya, aku udah ngebungkus aplikasinya pakai `Dockerfile` dan nyambungin repo ini ke platform Koyeb. Jadi, tiap kali kode yang udah aman tadi di-*merge* ke branch `main`, Koyeb bakal otomatis narik kodenya dan langsung nge-*deploy* aplikasinya ke internet biar bisa dipakai sama *user*.
+**Perbaikan untuk Test di Masa Depan:**
+*   Untuk menambal masalah tes yang *kurang* Independen khususnya pada sisi Functional Testing, saya akan membiasakan diri menulis mekanisme "*data wiping*" atau "*teardown*" (misal melalui blok `@AfterEach`) guna membersihkan data persisten/lokal sementara usai sebuah blok pengetesan fungsional tutup usia, atau minimal menggunakan *in-memory runtime transient* secara eksklusif.
+*   Serta menahan ego untuk implementasi lebih dahulu sebelum *Timely* disiplin mendesain kerangka tes yang diharapkan (*Red-phase first*).
